@@ -68,8 +68,8 @@
         property_attributes << build_attribute(schema, key, value, ref)
       end
 
-      # include top level reference to nested things, when top level is nullable
-      if value.has_key?('type') && value['type'].include?('null') && (value.has_key?('items') || value.has_key?('properties'))
+      # include top level reference to nested objects with descriptions
+      if value['description'].present? && (value.has_key?('properties') || (value.has_key?('items') && value['items'].has_key?('properties')))
         # A nullable object usually isn't a reference to another schema. It's
         # either not a reference at all, or it's a reference within the same
         # schema. Instead, the definition of the nullable object might contain
