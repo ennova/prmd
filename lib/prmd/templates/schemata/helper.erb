@@ -9,7 +9,10 @@
       _, value = schema.dereference(value)
 
       # include top level reference to nested things, when top level is nullable
-      if value.has_key?('type') && value['type'].include?('null') && (value.has_key?('items') || value.has_key?('properties'))
+      if value.has_key?('type') && (
+        (value['type'].include?('null') && (value.has_key?('items') || value.has_key?('properties'))) ||
+        (value['description'].present? && value.has_key?('properties'))
+      )
         attributes << build_attribute(schema, key, value)
       end
 
@@ -90,7 +93,10 @@
       else
         refs = [ref]
       end
-      if value.has_key?('type') && value['type'].include?('null') && (value.has_key?('items') || value.has_key?('properties'))
+      if value.has_key?('type') && (
+        (value['type'].include?('null') && (value.has_key?('items') || value.has_key?('properties'))) ||
+        (value['description'].present? && value.has_key?('properties'))
+      )
         # A nullable object usually isn't a reference to another schema. It's
         # either not a reference at all, or it's a reference within the same
         # schema. Instead, the definition of the nullable object might contain

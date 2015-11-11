@@ -29,8 +29,10 @@ module Prmd
 
     def handle_property(property, prefix, required)
       _, property = @schema.dereference(property)
-      case
-      when property_is_object?(property["type"])
+      if property_is_object?(property["type"])
+        if property['description'].present?
+          categorize_parameter(prefix, property.except('properties'), required)
+        end
         recurse_properties(Schema.new(property), "#{prefix}:", required)
       else
         categorize_parameter(prefix, property, required)
