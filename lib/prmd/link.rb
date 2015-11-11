@@ -8,25 +8,25 @@ module Prmd
 
     def required_and_optional_parameters
       @params = {required: {}, optional: {} }
-      recurse_properties(Schema.new(@link_schema["schema"]), "")
+      recurse_properties(Schema.new(@link_schema["schema"]), "", true)
       [@params[:required], @params[:optional]]
     end
 
     private
 
-    def recurse_properties(schema, prefix ="", parent_required= false )
+    def recurse_properties(schema, prefix ="", parent_required)
       return unless schema.has_properties?
 
       schema.properties.keys.each do |prop_name|
         prop = schema.properties[prop_name]
         pref = "#{prefix}#{prop_name}"
-        required = parent_required || schema.property_is_required?(prop_name)
+        required = parent_required && schema.property_is_required?(prop_name)
 
         handle_property(prop, pref, required)
       end
     end
 
-    def handle_property(property, prefix, required = false)
+    def handle_property(property, prefix, required)
       case
       when property_is_object?(property["type"])
         recurse_properties(Schema.new(property), "#{prefix}:", required)
@@ -40,7 +40,7 @@ module Prmd
       type == "object" || type.include?("object")
     end
 
-    def categorize_parameter(name, param,  required=false)
+    def categorize_parameter(name, param, required)
       @params[(required ? :required : :optional)][name] = param
     end
 
@@ -50,6 +50,7 @@ module Prmd
       end
 
       def property_is_required?(property_name)
+        return true if strictProperties
         return false unless required
         return required.include?(property_name)
       end
