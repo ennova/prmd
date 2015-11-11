@@ -13,7 +13,7 @@
 
 <%- if link.has_key?('schema') && link['schema'].has_key?('properties') %>
   <%-
-    required, optional = Prmd::Link.new(link).required_and_optional_parameters
+    required, optional = Prmd::Link.new(schema, link).required_and_optional_parameters
   %>
   <%- unless required.empty? %>
 #### Required Parameters

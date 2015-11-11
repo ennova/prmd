@@ -2,7 +2,8 @@ require 'ostruct'
 
 module Prmd
   class Link
-    def initialize(link_schema)
+    def initialize(schema, link_schema)
+      @schema = schema
       @link_schema = link_schema 
     end
 
@@ -27,6 +28,7 @@ module Prmd
     end
 
     def handle_property(property, prefix, required)
+      _, property = @schema.dereference(property)
       case
       when property_is_object?(property["type"])
         recurse_properties(Schema.new(property), "#{prefix}:", required)
