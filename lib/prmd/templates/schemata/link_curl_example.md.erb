@@ -17,9 +17,9 @@
     end
   %>
 <%- if link['method'].upcase != 'GET' %>
-$ curl -n -X <%= link['method'] %> <%= schema.href %><%= path -%><%- unless options[:http_header].empty? %> \<%- end %>
+$ curl -n -X <%= link['method'] %> <%= URI.join(schema.href, path) -%><%- unless options[:http_header].empty? %> \<%- end %>
 <%- else %>
-$ curl -n <%= schema.href %><%= path -%><%- unless options[:http_header].empty? %> \<%- end %>
+$ curl -n <%= URI.join(schema.href, path) -%><%- unless options[:http_header].empty? %> \<%- end %>
 <%- end %>
   <%- options[:http_header].each do |key, value| %>
   -H "<%= key %>: <%= value %>" \
