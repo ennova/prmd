@@ -87,6 +87,19 @@
       end
 
       attributes.concat(property_attributes)
+
+      if value.has_key?('type') && value['type'].include?('object') && options = value.values_at('allOf', 'anyOf', 'oneOf').compact.first
+        options.each do |option|
+          _, option = schema.dereference(option)
+          extract_attributes(schema, option['properties']).each do |attribute|
+            attribute[0] = "#{key}:#{attribute[0]}"
+            if prefix = option['title'].presence || option['description'].presence
+              attribute[2] = "_#{prefix}:_ #{attribute[2]}"
+            end
+          end
+          attributes.concat(nested)
+        end
+      end
     end
     attributes.map! { |key, type, description, example, ref|
       if example.nil? && Prmd::DefaultExamples.key?(type)
