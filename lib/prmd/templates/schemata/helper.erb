@@ -132,7 +132,12 @@
     end
 
     if value['enum']
-      description += '<br/> **one of:**' + [*value['enum']].map { |e| "`#{e.to_json}`" }.join(" or ")
+      label = if value['enum'].size == 1 && value['type'].exclude?('null')
+        '**value:**'
+      else
+        '**one of:**'
+      end
+      description += '<br/> ' + label + [*value['enum']].map { |e| "`#{e.to_json}`" }.join(" or ")
     end
 
     if value['pattern']
