@@ -107,6 +107,8 @@ module Prmd
     def schema_value_example(value)
       if value.key?('example')
         value['example']
+      elsif value['type'].include?('object') && options = value.values_at('allOf', 'anyOf', 'oneOf').compact.first
+        schema_example(options.first)
       elsif value.key?('anyOf')
         id_ref = value['anyOf'].find do |ref|
           ref['$ref'] && ref['$ref'].split('/').last == 'id'
