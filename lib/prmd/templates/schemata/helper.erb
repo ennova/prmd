@@ -8,10 +8,7 @@
       # found a reference to another element:
       _, value = schema.dereference(value)
 
-      # include top level reference to nested things, when top level is nullable
-      if value.has_key?('type') && value['type'].include?('null') && (value.has_key?('items') || value.has_key?('properties'))
-        attributes << build_attribute(schema, key, value)
-      end
+      property_attributes = []
 
       if value.has_key?('anyOf')
         descriptions = []
@@ -35,7 +32,7 @@
         end
 
         example = [*examples].map { |e| "`#{e.to_json}`" }.join(" or ")
-        attributes << [key, "string", description, example]
+        property_attributes << [key, "string", description, example]
 
       # found a nested object
       elsif value['properties']
@@ -43,7 +40,7 @@
         nested.each do |attribute|
           attribute[0] = "#{key}:#{attribute[0]}"
         end
-        attributes.concat(nested)
+        property_attributes.concat(nested)
 
       elsif array_with_nested_objects?(value['items'])
         if value['items']['properties']
@@ -51,7 +48,7 @@
           nested.each do |attribute|
             attribute[0] = "#{key}/#{attribute[0]}"
           end
-          attributes.concat(nested)
+          property_attributes.concat(nested)
         end
         if value['items']['oneOf']
           value['items']['oneOf'].each_with_index do |oneof, index|
@@ -61,14 +58,21 @@
           nested.each do |attribute|
             attribute[0] = "#{key}/[#{oneof_name.upcase}].#{attribute[0]}"
           end
-          attributes.concat(nested)
+          property_attributes.concat(nested)
         end
       end
 
       # just a regular attribute
       else
+        property_attributes << build_attribute(schema, key, value)
+      end
+
+      # include top level reference to nested things, when top level is nullable
+      if value.has_key?('type') && value['type'].include?('null') && (value.has_key?('items') || value.has_key?('properties'))
         attributes << build_attribute(schema, key, value)
       end
+
+      attributes.concat(property_attributes)
     end
     attributes.map! { |key, type, description, example|
       if example.nil? && Prmd::DefaultExamples.key?(type)
