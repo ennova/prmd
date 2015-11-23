@@ -137,7 +137,7 @@
       else
         '**one of:**'
       end
-      description += '<br/> ' + label + [*value['enum']].map { |e| "`#{e.to_json}`" }.join(" or ")
+      description += '<br/> ' + label + ' ' + [*value['enum']].map { |e| "`#{e.to_json}`" }.join(" or ")
     end
 
     if value['pattern']
