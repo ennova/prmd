@@ -90,14 +90,34 @@
 
       if value.has_key?('type') && value['type'].include?('object') && options = value.values_at('allOf', 'anyOf', 'oneOf').compact.first
         property_keys = property_attributes.map(&:first)
+
+        option_prefixes = []
+        option_attributes = []
         options.each do |option|
           _, option = schema.dereference(option)
-          extract_attributes(schema, option['properties']).each do |attribute|
-            attribute[0] = "#{key}:#{attribute[0]}"
-            if prefix = option['title'].presence || option['description'].presence
-              attribute[2] = "_#{prefix}:_ #{attribute[2]}"
-            end
+          option_prefixes << option['title'].presence || option['description'].presence
+          option_attributes << extract_attributes(schema, option['properties'])
+        end
+
+        attribute_counts = Hash.new(0)
+        option_attributes.flatten(1).each do |attribute|
+          attribute[0] = "#{key}:#{attribute[0]}"
+          attribute_counts[attribute] += 1
+        end
+
+        attribute_counts.each do |attribute, count|
+          if count == options.size && !property_keys.include?(attribute[0])
+            attributes << attribute
+            property_keys << attribute[0]
+          end
+        end
+
+        option_prefixes.zip(option_attributes).each do |option_prefix, option_attributes|
+          option_attributes.each do |attribute|
             unless property_keys.include?(attribute[0])
+              if option_prefix
+                attribute[2] = "_#{option_prefix}:_ #{attribute[2]}"
+              end
               attributes << attribute
             end
           end
