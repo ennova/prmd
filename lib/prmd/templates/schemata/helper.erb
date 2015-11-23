@@ -16,8 +16,8 @@
 
         anyof = value['anyOf']
 
-        anyof.each do |ref|
-          _, nested_field = schema.dereference(ref)
+        anyof.each do |anyof_ref|
+          _, nested_field = schema.dereference(anyof_ref)
           descriptions << nested_field['description'] if nested_field['description']
           examples << nested_field['example'] if nested_field['example']
         end
@@ -52,8 +52,8 @@
         end
         if value['items']['oneOf']
           value['items']['oneOf'].each_with_index do |oneof, index|
-          ref,  oneof_definition = schema.dereference(oneof)
-          oneof_name = ref ? ref.split('/').last : index
+          oneof_ref,  oneof_definition = schema.dereference(oneof)
+          oneof_name = oneof_ref ? oneof_ref.split('/').last : index
           nested = extract_attributes(schema, oneof_definition['properties'])
           nested.each do |attribute|
             attribute[0] = "#{key}/[#{oneof_name.upcase}].#{attribute[0]}"
