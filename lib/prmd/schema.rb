@@ -126,7 +126,7 @@ module Prmd
             [items['example']]
           end
         else
-          [schema_example(items)]
+          [schema_value_example(items)]
         end
       elsif value.key?('enum')
         value['enum'][0]
