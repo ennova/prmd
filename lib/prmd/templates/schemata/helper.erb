@@ -44,25 +44,29 @@
         property_attributes.concat(nested)
 
       elsif array_with_nested_objects?(value['items'])
+        property_keys = []
         if value['items']['properties']
           nested = extract_attributes(schema, value['items']['properties'])
           nested.each do |attribute|
             attribute[0] = "#{key}/#{attribute[0]}"
           end
           property_attributes.concat(nested)
+          property_keys.concat nested.map(&:first)
         end
         if value['items']['oneOf']
           value['items']['oneOf'].each_with_index do |oneof, index|
           oneof_ref,  oneof_definition = schema.dereference(oneof)
           oneof_name = oneof_ref ? oneof_ref.split('/').last : index
-          nested = extract_attributes(schema, oneof_definition['properties'])
-          nested.each do |attribute|
+          nested = []
+          extract_attributes(schema, oneof_definition['properties']).each do |attribute|
             attribute[0] = "#{key}/#{attribute[0]}"
             if prefix = oneof_definition['title'].presence || oneof_definition['description'].presence
               attribute[2] = "_#{prefix}:_ #{attribute[2]}"
             end
+            unless property_keys.include?(attribute[0])
+              property_attributes << attribute
+            end
           end
-          property_attributes.concat(nested)
         end
       end
 
