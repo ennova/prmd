@@ -57,7 +57,10 @@
           oneof_name = oneof_ref ? oneof_ref.split('/').last : index
           nested = extract_attributes(schema, oneof_definition['properties'])
           nested.each do |attribute|
-            attribute[0] = "#{key}/[#{oneof_name.upcase}].#{attribute[0]}"
+            attribute[0] = "#{key}/#{attribute[0]}"
+            if prefix = oneof_definition['title'].presence || oneof_definition['description'].presence
+              attribute[2] = "_#{prefix}:_ #{attribute[2]}"
+            end
           end
           property_attributes.concat(nested)
         end
