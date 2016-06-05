@@ -105,9 +105,11 @@ module Prmd
 
     # @param [Hash] value
     def schema_value_example(value)
+      options = value.values_at('allOf', 'anyOf', 'oneOf').compact.first
+
       if value.key?('example')
         value['example']
-      elsif value['type'].include?('object') && options = value.values_at('allOf', 'anyOf', 'oneOf').compact.first
+      elsif value['type'].include?('object') && options && options.first['$ref']
         schema_example(options.first)
       elsif value.key?('anyOf')
         id_ref = value['anyOf'].find do |ref|
