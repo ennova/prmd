@@ -62,7 +62,7 @@ HTTP/1.1 <%=
 <%- end %>
 ```
 
-<%- if response_example || link['rel'] != 'empty' %>
+<%- if response_example || %w[empty destroy].exclude?(link['rel']) %>
 ```json
 <%- if response_example %>
 <%=   response_example['body'] %>
